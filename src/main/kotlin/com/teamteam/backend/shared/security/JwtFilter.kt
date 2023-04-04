@@ -17,10 +17,9 @@ class JwtFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val cookie : Cookie? = request.cookies.find { cookie -> cookie.name == "cat" }
+        val cookie : Cookie? = request.cookies?.find { cookie -> cookie.name == "cat" }
 
         if(cookie == null){
-            logger.info("jwt token not found")
             filterChain.doFilter(request, response)
             return
         }

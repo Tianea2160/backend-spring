@@ -46,6 +46,7 @@ class SecurityConfig(
             .requestMatchers("/ping").permitAll()
             .requestMatchers("/test/admin").hasRole("ADMIN")
             .requestMatchers("/test/student").hasRole("STUDENT")
+            .requestMatchers("/v3/api-docs/**", "/swagger/**", "/swagger-ui.html" , "/swagger-ui/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
