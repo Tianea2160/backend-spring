@@ -45,7 +45,7 @@ class SecurityConfig(
             .formLogin().disable()
             .authorizeHttpRequests()
             .requestMatchers("/ping").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/building").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/building/**").hasAnyRole("ADMIN", "STUDENT")
             .requestMatchers(HttpMethod.POST, "/api/building/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.PUT, "/api/building/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/api/building/**").hasRole("ADMIN")

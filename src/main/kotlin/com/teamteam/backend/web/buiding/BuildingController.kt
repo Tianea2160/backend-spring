@@ -25,7 +25,7 @@ class BuildingController(
         return ResponseEntity.ok(buildingService.findAll(user))
     }
 
-    @GetMapping("/{buildingId}")
+    @GetMapping("/details/{buildingId}")
     fun findById(@PathVariable buildingId: String) : ResponseEntity<BuildingReadDTO>{
         return ResponseEntity.ok(buildingService.findById(buildingId))
     }
