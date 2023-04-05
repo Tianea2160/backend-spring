@@ -6,6 +6,7 @@ import com.teamteam.backend.shared.security.JwtFilter
 import com.teamteam.backend.shared.security.User
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -44,10 +45,12 @@ class SecurityConfig(
             .formLogin().disable()
             .authorizeHttpRequests()
             .requestMatchers("/ping").permitAll()
-            .requestMatchers("/test/admin").hasRole("ADMIN")
-            .requestMatchers("/test/student").hasRole("STUDENT")
+            .requestMatchers(HttpMethod.GET, "/api/building").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/building/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PUT, "/api/building/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/building/**").hasRole("ADMIN")
             .requestMatchers("/v3/api-docs/**", "/swagger/**", "/swagger-ui.html" , "/swagger-ui/**").permitAll()
-            .anyRequest().authenticated()
+            .anyRequest().denyAll() // deny all request that we are not using
             .and()
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
             .exceptionHandling()

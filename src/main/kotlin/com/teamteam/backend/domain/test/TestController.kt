@@ -8,18 +8,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class TestController {
-
-    @Operation(tags = ["test"])
-    @GetMapping("/test/admin")
-    fun admin(authentication:Authentication):String{
-        val user = authentication.principal as? User ?:  throw IllegalArgumentException("authentication exception")
-        return "$user"
-    }
-
-    @Operation(tags = ["test"])
-    @GetMapping("/test/student")
-    fun student() : String = "student"
-
     @Operation(tags = ["ping"])
     @GetMapping("/ping")
     fun ping() = "ping"
