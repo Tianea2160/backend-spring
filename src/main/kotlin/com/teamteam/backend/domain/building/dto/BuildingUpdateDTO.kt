@@ -7,8 +7,9 @@ class BuildingUpdateDTO(
     val name: String,
     val location: String,
     val description: String,
+    val imageUrl: String
 ) {
-    fun toEntity(buildingId: String, imageUrl: String, user: User): Building = Building(
+    fun toEntity(buildingId: String, user: User): Building = Building(
         id = buildingId,
         name = this.name,
         adminId = user.id,

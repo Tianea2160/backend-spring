@@ -22,10 +22,13 @@ class BuildingService(
 ) {
     //*** read only logic ***//
     @Transactional(readOnly = true)
-    fun findAll(user: User): List<BuildingReadDTO>{
+    fun findAll(user: User): List<BuildingReadDTO> {
         return buildingRepository.findAll().map { building ->
             val member = memberRepository.findByPID(building.adminId) ?: throw MemberNotFoundException()
-            BuildingReadDTO.from(building, User(username = member.username, id = member.PID, password = "", role = "", building = ""))
+            BuildingReadDTO.from(
+                building,
+                User(username = member.username, id = member.PID, password = "", role = "", building = "")
+            )
         }
     }
 
@@ -41,9 +44,9 @@ class BuildingService(
     @Transactional
     fun create(user: User, dto: BuildingCreateDTO): BuildingReadDTO {
         // name is unique check
-        if(buildingRepository.existsByName(dto.name))
+        if (buildingRepository.existsByName(dto.name))
             throw BuildingNameConflictException()
-        val building = dto.toEntity(user, "")
+        val building = dto.toEntity(user)
         building.id = provider.generate() // id generate
         return BuildingReadDTO.from(buildingRepository.save(building), user)
     }
@@ -53,7 +56,7 @@ class BuildingService(
         val building = buildingRepository.findById(buildingId).orElseThrow { throw BuildingNotFoundException() }
         if (building.adminId != user.id)
             throw BuildingAuthorizationException()
-        val updated = buildingRepository.save(dto.toEntity(buildingId, "", user))
+        val updated = buildingRepository.save(dto.toEntity(buildingId, user))
         return BuildingReadDTO.from(updated, user)
     }
 
