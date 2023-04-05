@@ -12,7 +12,7 @@ class User(
     val building : String
 ) : UserDetails{
     // ROLE_{permission} is spring security 'authority' pattern
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = mutableListOf(SimpleGrantedAuthority("ROLE_${role}"))
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = mutableListOf(SimpleGrantedAuthority("ROLE_$role".uppercase()))
     override fun getPassword(): String = password
     override fun getUsername(): String = username
     override fun isAccountNonExpired(): Boolean = true

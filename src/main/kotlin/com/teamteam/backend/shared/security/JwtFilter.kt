@@ -1,7 +1,6 @@
 package com.teamteam.backend.shared.security
 
 import jakarta.servlet.FilterChain
-import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
@@ -17,13 +16,13 @@ class JwtFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val cookie : Cookie? = request.cookies?.find { cookie -> cookie.name == "cat" }
-
-        if(cookie == null){
+        val bearer:String? = request.getHeader("Authorization")
+        if(bearer == null){
+            logger.info("bearer is null")
             filterChain.doFilter(request, response)
             return
         }
-        val jwt:String = cookie.value
+        val jwt:String = bearer.substring("Bearer ".length)
         val authentication = jwtService.createAuthenticationToken(jwt)
         SecurityContextHolder.getContext().authentication = authentication
         filterChain.doFilter(request, response)
