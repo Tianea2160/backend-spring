@@ -2,6 +2,7 @@
 FROM gradle:jdk17-alpine as build
 WORKDIR /app
 COPY . .
+RUN chmod +x gradlew
 RUN ./gradlew clean build
 
 # deploy stage
