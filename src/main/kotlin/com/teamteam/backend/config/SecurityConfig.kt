@@ -45,10 +45,17 @@ class SecurityConfig(
             .formLogin().disable()
             .authorizeHttpRequests()
             .requestMatchers("/ping").permitAll()
+
             .requestMatchers(HttpMethod.GET, "/api/building/**").hasAnyRole("ADMIN", "STUDENT")
             .requestMatchers(HttpMethod.POST, "/api/building/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.PUT, "/api/building/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/api/building/**").hasRole("ADMIN")
+
+            .requestMatchers(HttpMethod.GET, "/api/room/**").hasAnyRole("ADMIN", "STUDENT")
+            .requestMatchers(HttpMethod.POST, "/api/room/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PUT, "/api/room/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/room/**").hasRole("ADMIN")
+
             .requestMatchers("/v3/api-docs/**", "/swagger/**", "/swagger-ui.html" , "/swagger-ui/**").permitAll()
             .anyRequest().denyAll() // deny all request that we are not using
             .and()
