@@ -21,7 +21,7 @@ class RoomController(
     fun findAll(): ResponseEntity<List<RoomReadDTO>> = ResponseEntity.ok(roomService.findAll())
 
 
-    @GetMapping("/{roomId}")
+    @GetMapping("/details/{roomId}")
     fun findById(@PathVariable roomId: String): ResponseEntity<RoomReadDTO> =
         ResponseEntity.ok(roomService.findById(roomId))
 
