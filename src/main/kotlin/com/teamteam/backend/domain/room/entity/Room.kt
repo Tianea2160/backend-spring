@@ -15,4 +15,10 @@ class Room(
     var name: String,
     var description: String,
     var capacity: Long,
-)
+) {
+    fun update(name: String = this.name, description: String = this.description, capacity: Long = this.capacity) {
+        this.name = name
+        this.description = description
+        this.capacity = capacity
+    }
+}

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface EquipmentRepository : JpaRepository<Equipment, String> {
+    fun findAllByRoomId(roomId: String): List<Equipment>
+    fun deleteAllByRoomId(roomId: String)
 }
