@@ -6,6 +6,7 @@ import com.teamteam.backend.domain.member.service.MemberService
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryAdminCreateDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryReadDTO
 import com.teamteam.backend.domain.reservation.entity.Reservation
+import com.teamteam.backend.domain.reservation.entity.ReservationStatus
 import com.teamteam.backend.domain.reservation.error.ReservationAlreadyExistException
 import com.teamteam.backend.domain.reservation.error.ReservationNotFoundException
 import com.teamteam.backend.domain.reservation.repository.ReservationRepository
@@ -39,6 +40,17 @@ class ReservationService(
             val member = memberService.findById(summary.userId, summary.isCreatedByAdmin)
             val room = roomService.findById(summary.roomId)
             ReservationSummaryReadDTO.from(member, summary, room, times)
+        }
+    }
+
+    @Transactional(readOnly = true)
+    fun findAllNeedPermit(): List<ReservationSummaryReadDTO> {
+        val summarys = reservationSummaryRepository.findAllByStatus(ReservationStatus.PENDING)
+        val times = reservationTimeRepository.findAllBySummaryIdIn(summarys.map { it.id })
+        return summarys.map { summary ->
+            val member = memberService.findById(summary.userId, summary.isCreatedByAdmin)
+            val room = roomService.findById(summary.roomId)
+            ReservationSummaryReadDTO.from(member, summary, room, times.filter { time -> time.summaryId == summary.id })
         }
     }
 

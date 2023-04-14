@@ -15,10 +15,14 @@ import org.springframework.web.bind.annotation.*
 class ReservationController(
     private val reservationService: ReservationService
 ) {
-
+    //*** read only logic ***//
     @GetMapping("/summary")
     fun findAll(): ResponseEntity<List<ReservationSummaryReadDTO>> = ResponseEntity.ok(reservationService.findAll())
 
+    @GetMapping("/admin/summary/permit")
+    fun findAllNeedPermit(): ResponseEntity<List<ReservationSummaryReadDTO>> = ResponseEntity.ok(reservationService.findAllNeedPermit())
+
+    //*** command logic ***//
     @PostMapping("/admin/summary/{roomId}")
     fun createReservationByAdmin(
         authentication: Authentication,
