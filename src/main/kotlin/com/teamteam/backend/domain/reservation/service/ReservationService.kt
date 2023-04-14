@@ -19,7 +19,6 @@ import com.teamteam.backend.domain.room.error.RoomNotFoundException
 import com.teamteam.backend.domain.room.service.RoomService
 import com.teamteam.backend.shared.security.User
 import org.slf4j.LoggerFactory
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -141,6 +140,30 @@ class ReservationService(
         reservationTimeRepository.deleteAllBySummaryId(summary.id)
         reservationRepository.deleteAllBySummaryId(summary.id)
         reservationSummaryRepository.deleteById(summary.id)
-        memberService.deleteMockMemberById(summary.userId)
+        if (summary.isCreatedByAdmin)
+            memberService.deleteMockMemberById(summary.userId)
+    }
+
+    @Transactional
+    fun deleteReservation(user: User, reservationId: String) {
+        val reservation =
+            reservationRepository.findById(reservationId).orElseThrow { throw ReservationNotFoundException() }
+        if (reservation.userId != user.id) throw ReservationPermissionException()
+        reservationRepository.deleteById(reservationId)
+    }
+
+    @Transactional
+    fun deleteReservationByAdmin(reservationId: String) {
+        reservationRepository.deleteById(reservationId)
+    }
+
+    @Transactional
+    fun deleteReservationSummary(user: User, summaryId: String) {
+        val summary =
+            reservationSummaryRepository.findById(summaryId).orElseThrow { throw ReservationNotFoundException() }
+        if (summary.userId != user.id) throw ReservationPermissionException()
+        reservationTimeRepository.deleteAllBySummaryId(summary.id)
+        reservationRepository.deleteAllBySummaryId(summary.id)
+        reservationSummaryRepository.deleteById(summary.id)
     }
 }

@@ -56,4 +56,49 @@ class ReservationController(
             )
         )
     }
+
+    @DeleteMapping("/summary/{summaryId}")
+    fun deleteReservationSummary(
+        @PathVariable summaryId: String,
+        authentication: Authentication
+    ): ResponseEntity<CommonResponse> {
+        reservationService.deleteReservationSummary(authentication.principal as User, summaryId)
+        return ResponseEntity.ok(
+            CommonResponse(
+                message = "delete reservation summary success",
+                code = "delete_reservation_summary_success",
+                status = 200
+            )
+        )
+    }
+
+    @DeleteMapping("/{reservationId}")
+    fun deleteReservation(
+        @PathVariable reservationId: String,
+        authentication: Authentication
+    ): ResponseEntity<CommonResponse> {
+        reservationService.deleteReservation(authentication.principal as User, reservationId)
+        return ResponseEntity.ok(
+            CommonResponse(
+                message = "delete reservation success",
+                code = "delete_reservation_success",
+                status = 200
+            )
+        )
+    }
+
+    @DeleteMapping("/admin/{reservationId}")
+    fun deleteReservationByAdmin(
+        @PathVariable reservationId: String,
+        authentication: Authentication
+    ): ResponseEntity<CommonResponse> {
+        reservationService.deleteReservationByAdmin(reservationId)
+        return ResponseEntity.ok(
+            CommonResponse(
+                message = "delete reservation success",
+                code = "delete_reservation_success",
+                status = 200
+            )
+        )
+    }
 }
