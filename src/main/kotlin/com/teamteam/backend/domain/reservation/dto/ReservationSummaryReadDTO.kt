@@ -33,7 +33,7 @@ class ReservationSummaryReadDTO(
             roomReadDTO: RoomReadDTO,
             times: List<ReservationTime>
         ) = ReservationSummaryReadDTO(
-            id = summary.id ?: throw ReservationNotFoundException(),
+            id = summary.id,
             activity = summary.activity,
             startDate = summary.startDate,
             endDate = summary.endDate,
@@ -56,7 +56,7 @@ class ReservationTimeReadDTO(
 ) {
     companion object {
         fun from(time: ReservationTime) = ReservationTimeReadDTO(
-            id = time.id ?: throw ReservationNotFoundException(),
+            id = time.id,
             startTime = time.startTime,
             endTime = time.endTime,
             dayOfWeek = time.dayOfWeek

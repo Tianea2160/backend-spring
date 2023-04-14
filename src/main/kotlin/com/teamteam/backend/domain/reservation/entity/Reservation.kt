@@ -12,7 +12,7 @@ import java.time.LocalTime
 @Table(name = "reservation_summary")
 class ReservationSummary(
     @Id
-    var id: String? = null,
+    var id: String,
     @Column(name = "room_id")
     var roomId: String,
     @Column(name = "user_id")
@@ -47,7 +47,7 @@ enum class ReservationStatus {
 @Table(name = "reservation_time")
 class ReservationTime(
     @Id
-    var id: String? = null,
+    var id: String,
     @Column(name = "summary_id")
     var summaryId: String,
     @Column(name = "start_time")
@@ -63,7 +63,7 @@ class ReservationTime(
 @Table(name = "reservation")
 class Reservation(
     @Id
-    var id: String? = null,
+    var id: String,
     @Column(name = "summary_id")
     var summaryId: String,
     @Column(name = "room_id")

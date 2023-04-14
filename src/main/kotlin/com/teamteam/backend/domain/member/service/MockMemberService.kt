@@ -17,4 +17,9 @@ class MockMemberService(
         val mock = mockMemberRepository.save(MockMember(id = provider.generate(), username = username))
         return MemberReadDTO(id = mock.id, username = mock.username)
     }
+
+    @Transactional
+    fun deleteMockMemberById(userId: String) {
+        mockMemberRepository.deleteById(userId)
+    }
 }

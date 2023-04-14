@@ -2,20 +2,19 @@ package com.teamteam.backend.domain.reservation.service
 
 import com.teamteam.backend.domain.building.error.BuildingNoPermissionException
 import com.teamteam.backend.domain.generator.IdentifierProvider
-import com.teamteam.backend.domain.reservation.dto.ReservationSummaryCreateDTO
-import com.teamteam.backend.domain.reservation.dto.ReservationSummaryReadDTO
-import com.teamteam.backend.domain.reservation.error.ReservationNotFoundException
-import com.teamteam.backend.domain.reservation.repository.ReservationSummaryRepository
-import com.teamteam.backend.domain.reservation.repository.ReservationTimeRepository
-import com.teamteam.backend.domain.room.error.RoomNotFoundException
-import com.teamteam.backend.domain.room.repository.RoomRepository
-import com.teamteam.backend.domain.room.service.RoomService
 import com.teamteam.backend.domain.member.service.MemberService
 import com.teamteam.backend.domain.member.service.MockMemberService
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryAdminCreateDTO
+import com.teamteam.backend.domain.reservation.dto.ReservationSummaryCreateDTO
+import com.teamteam.backend.domain.reservation.dto.ReservationSummaryReadDTO
 import com.teamteam.backend.domain.reservation.entity.Reservation
 import com.teamteam.backend.domain.reservation.error.ReservationAlreadyExistException
+import com.teamteam.backend.domain.reservation.error.ReservationNotFoundException
 import com.teamteam.backend.domain.reservation.repository.ReservationRepository
+import com.teamteam.backend.domain.reservation.repository.ReservationSummaryRepository
+import com.teamteam.backend.domain.reservation.repository.ReservationTimeRepository
+import com.teamteam.backend.domain.room.error.RoomNotFoundException
+import com.teamteam.backend.domain.room.service.RoomService
 import com.teamteam.backend.shared.security.User
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -39,7 +38,7 @@ class ReservationService(
     fun findMyReservationSummary(user: User): List<ReservationSummaryReadDTO> {
         val summaries = reservationSummaryRepository.findAllByUserId(user.id)
         val times = reservationTimeRepository.findAllBySummaryIdIn(summaries.map { s ->
-            s.id ?: throw ReservationNotFoundException()
+            s.id
         })
         return summaries.map { summary ->
             val roomReadDTO = roomService.findById(summary.roomId)
@@ -60,15 +59,12 @@ class ReservationService(
         dto: ReservationSummaryCreateDTO
     ): ReservationSummaryReadDTO {
         if (!roomService.isExist(roomId)) throw RoomNotFoundException()
-        val summary = dto.toEntity(user.id, roomId)
+        val summary = dto.toEntity(provider.generate(), user.id, roomId)
         summary.id = provider.generate()
         reservationSummaryRepository.save(summary)
 
-        val summaryId = summary.id ?: throw ReservationNotFoundException()
-        val times = dto.times.map { t ->
-            val entity = t.toEntity(summaryId)
-            entity.id = provider.generate()
-            entity
+        val times = dto.times.map { time ->
+            time.toEntity(id = provider.generate(), summaryId = summary.id)
         }.let { times -> reservationTimeRepository.saveAll(times) }
         val roomReadDTO = roomService.findById(roomId)
         val memberReadDTO = memberService.findById(user.id)
@@ -78,43 +74,33 @@ class ReservationService(
 
     @Transactional
     fun createReservationSummaryByAdmin(
-        user : User,
+        user: User,
         dto: ReservationSummaryAdminCreateDTO,
         roomId: String
     ): ReservationSummaryReadDTO {
         val mockMember = mockMemberService.createMockMember(dto.user.username)
-        logger.info("mock user create $mockMember")
-
         if (!roomService.isExist(roomId)) throw RoomNotFoundException()
-        if(!roomService.isValid(roomId,user.id)) throw BuildingNoPermissionException()
-        logger.info("reservation user authentication check")
+        if (!roomService.isValid(roomId, user.id)) throw BuildingNoPermissionException()
 
-
-        val summary = dto.toEntity(roomId, mockMember.id)
+        val summary = dto.toEntity(id = provider.generate(), roomId = roomId, userId = mockMember.id)
         val roomDTO = roomService.findById(roomId)
-        val summaryId = provider.generate()
-        summary.id = summaryId
         reservationSummaryRepository.save(summary)
 
-        val times = dto.times.map { t ->
-            val time = t.toEntity(summaryId)
-            time.id = provider.generate()
-            time
+        val times = dto.times.map { time ->
+            time.toEntity(id = provider.generate(), summaryId = summary.id)
         }.let { times -> reservationTimeRepository.saveAll(times) }
 
-        // 관리자 권한 예약 생성이라서 예약 즉시 승인 처리
         summary.approve()
-        logger.info("reservation summary, times save complete")
 
         val reservations = mutableListOf<Reservation>()
         val dayOfWeeks = dto.times.map { it.dayOfWeek }.distinct()
 
-        for(day in dto.startDate.datesUntil(dto.endDate.plusDays(1))){
-            for(time in times){
-                if(day.dayOfWeek in dayOfWeeks){
+        for (day in dto.startDate.datesUntil(dto.endDate.plusDays(1))) {
+            for (time in times) {
+                if (day.dayOfWeek in dayOfWeeks) {
                     val reservation = Reservation(
                         id = provider.generate(),
-                        summaryId = summaryId,
+                        summaryId = summary.id,
                         activity = summary.activity,
                         userId = mockMember.id,
                         roomId = roomId,
@@ -123,7 +109,12 @@ class ReservationService(
                         dayOfWeek = day.dayOfWeek,
                     )
 
-                    if(reservationRepository.existsReservationBetweenTimes(reservation.roomId, reservation.startTime, reservation.endTime)){
+                    if (reservationRepository.existsReservationBetweenTimes(
+                            roomId = reservation.roomId,
+                            start = reservation.startTime,
+                            end = reservation.endTime
+                        )
+                    ) {
                         throw ReservationAlreadyExistException(reservation.startTime, reservation.endTime)
                     }
 
@@ -131,12 +122,17 @@ class ReservationService(
                 }
             }
         }
-
-        logger.info("reservation valid check complete")
-
-
         reservationRepository.saveAll(reservations)
-        logger.info("reservations save complete")
         return ReservationSummaryReadDTO.from(mockMember, summary, roomDTO, times)
+    }
+
+    @Transactional
+    fun deleteReservationSummaryByAdmin(summaryId: String) {
+        val summary =
+            reservationSummaryRepository.findById(summaryId).orElseThrow { throw ReservationNotFoundException() }
+        reservationTimeRepository.deleteAllBySummaryId(summary.id)
+        reservationRepository.deleteAllBySummaryId(summary.id)
+        reservationSummaryRepository.deleteById(summary.id)
+        mockMemberService.deleteMockMemberById(summary.userId)
     }
 }

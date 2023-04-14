@@ -14,7 +14,8 @@ class ReservationSummaryAdminCreateDTO(
     val endDate: LocalDate,
     val times: List<ReservationTimeCreateDTO>
 ) {
-    fun toEntity(roomId: String, userId: String): ReservationSummary = ReservationSummary(
+    fun toEntity(id : String, roomId: String, userId: String): ReservationSummary = ReservationSummary(
+        id = id,
         activity = activity,
         startDate = startDate,
         endDate = endDate,

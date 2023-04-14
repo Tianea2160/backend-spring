@@ -13,6 +13,6 @@ class ReservationTimeCreateDTO(
     val endTime: LocalTime,
     val dayOfWeek: DayOfWeek
 ) {
-    fun toEntity(summaryId: String) =
-        ReservationTime(summaryId = summaryId, startTime = startTime, endTime = endTime, dayOfWeek = dayOfWeek)
+    fun toEntity(id : String, summaryId: String) =
+        ReservationTime(id = id, summaryId = summaryId, startTime = startTime, endTime = endTime, dayOfWeek = dayOfWeek)
 }
