@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.*
 class ReservationController(
     private val reservationService: ReservationService
 ) {
+
+    @GetMapping("/summary")
+    fun findAll(): ResponseEntity<List<ReservationSummaryReadDTO>> = ResponseEntity.ok(reservationService.findAll())
+
     @PostMapping("/admin/summary/{roomId}")
     fun createReservationByAdmin(
         authentication: Authentication,
@@ -22,7 +26,7 @@ class ReservationController(
         @RequestBody dto: ReservationSummaryAdminCreateDTO
     ): ResponseEntity<ReservationSummaryReadDTO> = ResponseEntity.status(HttpStatus.CREATED)
         .body(reservationService.createReservationSummaryByAdmin(authentication.principal as User, dto, roomId))
-    
+
     @DeleteMapping("/admin/summary/{summaryId}")
     fun deleteReservationSummaryByAdmin(@PathVariable summaryId: String): ResponseEntity<CommonResponse> {
         reservationService.deleteReservationSummaryByAdmin(summaryId = summaryId)

@@ -24,6 +24,8 @@ class ReservationSummary(
     var startDate: LocalDate,
     @Column(name = "end_date")
     var endDate: LocalDate,
+    @Column(name = "is_created_by_admin")
+    var isCreatedByAdmin : Boolean = false
 ) : BaseTimeEntity() {
 
     fun approve() {

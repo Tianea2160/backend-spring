@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ReservationTimeRepository : JpaRepository<ReservationTime, String> {
     fun findAllBySummaryIdIn(summaryIds : List<String>): List<ReservationTime>
+    fun findAllBySummaryId(summaryId : String): List<ReservationTime>
     fun deleteAllBySummaryId(summaryId : String)
 }

@@ -3,9 +3,7 @@ package com.teamteam.backend.domain.reservation.service
 import com.teamteam.backend.domain.building.error.BuildingNoPermissionException
 import com.teamteam.backend.domain.generator.IdentifierProvider
 import com.teamteam.backend.domain.member.service.MemberService
-import com.teamteam.backend.domain.member.service.MockMemberService
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryAdminCreateDTO
-import com.teamteam.backend.domain.reservation.dto.ReservationSummaryCreateDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryReadDTO
 import com.teamteam.backend.domain.reservation.entity.Reservation
 import com.teamteam.backend.domain.reservation.error.ReservationAlreadyExistException
@@ -27,7 +25,6 @@ class ReservationService(
     private val reservationTimeRepository: ReservationTimeRepository,
     private val memberService: MemberService,
     private val roomService: RoomService,
-    private val mockMemberService: MockMemberService,
     private val provider: IdentifierProvider,
     private val reservationRepository: ReservationRepository
 ) {
@@ -35,62 +32,38 @@ class ReservationService(
 
     //*** read only logic ***//
     @Transactional(readOnly = true)
-    fun findMyReservationSummary(user: User): List<ReservationSummaryReadDTO> {
-        val summaries = reservationSummaryRepository.findAllByUserId(user.id)
-        val times = reservationTimeRepository.findAllBySummaryIdIn(summaries.map { s ->
-            s.id
-        })
-        return summaries.map { summary ->
-            val roomReadDTO = roomService.findById(summary.roomId)
-            val member = memberService.findById(summary.userId)
-            ReservationSummaryReadDTO.from(
-                member,
-                summary,
-                roomReadDTO,
-                times.filter { t -> t.summaryId == summary.id })
+    fun findAll(): List<ReservationSummaryReadDTO> {
+        val summarys = reservationSummaryRepository.findAll()
+        return summarys.map { summary ->
+            val times = reservationTimeRepository.findAllBySummaryId(summary.id)
+            val member = memberService.findById(summary.userId, summary.isCreatedByAdmin)
+            val room = roomService.findById(summary.roomId)
+            ReservationSummaryReadDTO.from(member, summary, room, times)
         }
     }
 
     //*** command logic ***//
-    @Transactional
-    fun createReservationSummary(
-        user: User,
-        roomId: String,
-        dto: ReservationSummaryCreateDTO
-    ): ReservationSummaryReadDTO {
-        if (!roomService.isExist(roomId)) throw RoomNotFoundException()
-        val summary = dto.toEntity(provider.generate(), user.id, roomId)
-        summary.id = provider.generate()
-        reservationSummaryRepository.save(summary)
-
-        val times = dto.times.map { time ->
-            time.toEntity(id = provider.generate(), summaryId = summary.id)
-        }.let { times -> reservationTimeRepository.saveAll(times) }
-        val roomReadDTO = roomService.findById(roomId)
-        val memberReadDTO = memberService.findById(user.id)
-
-        return ReservationSummaryReadDTO.from(memberReadDTO, summary, roomReadDTO, times)
-    }
-
     @Transactional
     fun createReservationSummaryByAdmin(
         user: User,
         dto: ReservationSummaryAdminCreateDTO,
         roomId: String
     ): ReservationSummaryReadDTO {
-        val mockMember = mockMemberService.createMockMember(dto.user.username)
+        val mockMember = memberService.createMockMember(dto.user.username)
         if (!roomService.isExist(roomId)) throw RoomNotFoundException()
         if (!roomService.isValid(roomId, user.id)) throw BuildingNoPermissionException()
 
         val summary = dto.toEntity(id = provider.generate(), roomId = roomId, userId = mockMember.id)
+
+        summary.isCreatedByAdmin = true
+        summary.approve()
+
         val roomDTO = roomService.findById(roomId)
         reservationSummaryRepository.save(summary)
 
         val times = dto.times.map { time ->
             time.toEntity(id = provider.generate(), summaryId = summary.id)
         }.let { times -> reservationTimeRepository.saveAll(times) }
-
-        summary.approve()
 
         val reservations = mutableListOf<Reservation>()
         val dayOfWeeks = dto.times.map { it.dayOfWeek }.distinct()
@@ -133,6 +106,6 @@ class ReservationService(
         reservationTimeRepository.deleteAllBySummaryId(summary.id)
         reservationRepository.deleteAllBySummaryId(summary.id)
         reservationSummaryRepository.deleteById(summary.id)
-        mockMemberService.deleteMockMemberById(summary.userId)
+        memberService.deleteMockMemberById(summary.userId)
     }
 }
