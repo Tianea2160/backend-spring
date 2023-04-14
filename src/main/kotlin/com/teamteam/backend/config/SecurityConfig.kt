@@ -56,6 +56,12 @@ class SecurityConfig(
             .requestMatchers(HttpMethod.PUT, "/api/room/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/api/room/**").hasRole("ADMIN")
 
+            .requestMatchers(HttpMethod.GET, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
+            .requestMatchers(HttpMethod.POST, "/api/reservation/admin/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.POST, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
+            .requestMatchers(HttpMethod.PUT, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
+            .requestMatchers(HttpMethod.DELETE, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
+
             .requestMatchers("/v3/api-docs/**", "/swagger/**", "/swagger-ui.html" , "/swagger-ui/**").permitAll()
             .anyRequest().denyAll() // deny all request that we are not using
             .and()
