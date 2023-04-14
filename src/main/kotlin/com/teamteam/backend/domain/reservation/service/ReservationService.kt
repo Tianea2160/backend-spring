@@ -2,13 +2,16 @@ package com.teamteam.backend.domain.reservation.service
 
 import com.teamteam.backend.domain.building.error.BuildingNoPermissionException
 import com.teamteam.backend.domain.generator.IdentifierProvider
+import com.teamteam.backend.domain.member.dto.MemberReadDTO
 import com.teamteam.backend.domain.member.service.MemberService
+import com.teamteam.backend.domain.reservation.dto.ReservationReadDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryAdminCreateDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryReadDTO
 import com.teamteam.backend.domain.reservation.entity.Reservation
 import com.teamteam.backend.domain.reservation.entity.ReservationStatus
 import com.teamteam.backend.domain.reservation.error.ReservationAlreadyExistException
 import com.teamteam.backend.domain.reservation.error.ReservationNotFoundException
+import com.teamteam.backend.domain.reservation.error.ReservationPermissionException
 import com.teamteam.backend.domain.reservation.repository.ReservationRepository
 import com.teamteam.backend.domain.reservation.repository.ReservationSummaryRepository
 import com.teamteam.backend.domain.reservation.repository.ReservationTimeRepository
@@ -16,6 +19,7 @@ import com.teamteam.backend.domain.room.error.RoomNotFoundException
 import com.teamteam.backend.domain.room.service.RoomService
 import com.teamteam.backend.shared.security.User
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -52,6 +56,25 @@ class ReservationService(
             val room = roomService.findById(summary.roomId)
             ReservationSummaryReadDTO.from(member, summary, room, times.filter { time -> time.summaryId == summary.id })
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun findMyReservationSummarys(user: User): List<ReservationSummaryReadDTO> {
+        val summarys = reservationSummaryRepository.findAllByUserId(user.id)
+        val times = reservationTimeRepository.findAllBySummaryIdIn(summarys.map { it.id })
+
+        return summarys.map { summary ->
+            val member = memberService.findById(summary.userId, summary.isCreatedByAdmin)
+            val room = roomService.findById(summary.roomId)
+            ReservationSummaryReadDTO.from(member, summary, room, times.filter { time -> time.summaryId == summary.id })
+        }
+    }
+
+    @Transactional(readOnly = true)
+    fun findMyReservations(user: User): List<ReservationReadDTO> {
+        val reservations = reservationRepository.findAllByUserId(user.id)
+        val member = MemberReadDTO.from(user)
+        return reservations.map { reservation -> ReservationReadDTO.from(reservation, member) }
     }
 
     //*** command logic ***//

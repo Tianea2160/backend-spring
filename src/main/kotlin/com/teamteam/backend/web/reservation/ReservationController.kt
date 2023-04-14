@@ -1,5 +1,6 @@
 package com.teamteam.backend.web.reservation
 
+import com.teamteam.backend.domain.reservation.dto.ReservationReadDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryAdminCreateDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryReadDTO
 import com.teamteam.backend.domain.reservation.service.ReservationService
@@ -20,7 +21,20 @@ class ReservationController(
     fun findAll(): ResponseEntity<List<ReservationSummaryReadDTO>> = ResponseEntity.ok(reservationService.findAll())
 
     @GetMapping("/admin/summary/permit")
-    fun findAllNeedPermit(): ResponseEntity<List<ReservationSummaryReadDTO>> = ResponseEntity.ok(reservationService.findAllNeedPermit())
+    fun findAllNeedPermit(): ResponseEntity<List<ReservationSummaryReadDTO>> =
+        ResponseEntity.ok(reservationService.findAllNeedPermit())
+
+    @GetMapping("/summary/me")
+    fun findMyReservationSummarys(
+        authentication: Authentication
+    ): ResponseEntity<List<ReservationSummaryReadDTO>> =
+        ResponseEntity.ok(reservationService.findMyReservationSummarys(authentication.principal as User))
+
+    @GetMapping("/me")
+    fun findMyReservation(
+        authentication: Authentication
+    ): ResponseEntity<List<ReservationReadDTO>> =
+        ResponseEntity.ok(reservationService.findMyReservations(authentication.principal as User))
 
     //*** command logic ***//
     @PostMapping("/admin/summary/{roomId}")
