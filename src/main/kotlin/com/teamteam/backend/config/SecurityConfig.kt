@@ -57,10 +57,10 @@ class SecurityConfig(
             .requestMatchers(HttpMethod.DELETE, "/api/room/**").hasRole("ADMIN")
 
             .requestMatchers("/api/reservation/admin/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.GET, "/api/reservation/me", "/api/reservation/summary/me").hasRole("STUDENT")
             .requestMatchers(HttpMethod.GET, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
-            .requestMatchers(HttpMethod.POST, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
-            .requestMatchers(HttpMethod.PUT, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
-            .requestMatchers(HttpMethod.DELETE, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
+            .requestMatchers(HttpMethod.POST, "/api/reservation/**").hasRole("STUDENT")
+            .requestMatchers(HttpMethod.DELETE, "/api/reservation/**").hasRole("STUDENT")
 
             .requestMatchers("/v3/api-docs/**", "/swagger/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
             .anyRequest().denyAll() // deny all request that we are not using
