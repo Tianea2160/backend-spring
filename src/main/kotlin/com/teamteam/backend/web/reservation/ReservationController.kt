@@ -2,6 +2,7 @@ package com.teamteam.backend.web.reservation
 
 import com.teamteam.backend.domain.reservation.dto.ReservationReadDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryAdminCreateDTO
+import com.teamteam.backend.domain.reservation.dto.ReservationSummaryCreateDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryReadDTO
 import com.teamteam.backend.domain.reservation.service.ReservationService
 import com.teamteam.backend.shared.dto.CommonResponse
@@ -97,6 +98,37 @@ class ReservationController(
             CommonResponse(
                 message = "delete reservation success",
                 code = "delete_reservation_success",
+                status = 200
+            )
+        )
+    }
+
+    @PostMapping("/admin/summary/permit/{summaryId}")
+    fun permitReservationSummaryByAdmin(
+        @PathVariable summaryId: String,
+        authentication: Authentication
+    ): ResponseEntity<CommonResponse> {
+        reservationService.permitReservationSummaryByAdmin(authentication.principal as User, summaryId)
+        return ResponseEntity.ok(
+            CommonResponse(
+                message = "permit reservation summary success",
+                code = "permit_reservation_summary_success",
+                status = 200
+            )
+        )
+    }
+
+    @PostMapping("/summary/{roomId}")
+    fun createReservationSummary(
+        authentication: Authentication,
+        @PathVariable roomId: String,
+        @RequestBody dto: ReservationSummaryCreateDTO
+    ): ResponseEntity<CommonResponse> {
+        reservationService.createReservationSummary(authentication.principal as User, roomId, dto)
+        return ResponseEntity.ok(
+            CommonResponse(
+                message = "create reservation summary success",
+                code = "create_reservation_summary_success",
                 status = 200
             )
         )

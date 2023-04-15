@@ -6,6 +6,7 @@ import com.teamteam.backend.domain.member.dto.MemberReadDTO
 import com.teamteam.backend.domain.member.service.MemberService
 import com.teamteam.backend.domain.reservation.dto.ReservationReadDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryAdminCreateDTO
+import com.teamteam.backend.domain.reservation.dto.ReservationSummaryCreateDTO
 import com.teamteam.backend.domain.reservation.dto.ReservationSummaryReadDTO
 import com.teamteam.backend.domain.reservation.entity.Reservation
 import com.teamteam.backend.domain.reservation.entity.ReservationStatus
@@ -77,6 +78,28 @@ class ReservationService(
     }
 
     //*** command logic ***//
+
+    @Transactional
+    fun createReservationSummary(
+        user: User,
+        roomId: String,
+        dto: ReservationSummaryCreateDTO
+    ): ReservationSummaryReadDTO {
+        if (!roomService.isExist(roomId)) throw RoomNotFoundException()
+        if (!roomService.isValid(roomId, user.id)) throw BuildingNoPermissionException()
+
+        val roomReadDTO = roomService.findById(roomId)
+        val memberReadDTO = MemberReadDTO.from(user)
+        val summary = dto.toEntity(id = provider.generate(), roomId = roomId, userId = user.id)
+            .let { summary -> reservationSummaryRepository.save(summary) }
+
+        val times = dto.times.map { time ->
+            time.toEntity(id = provider.generate(), summaryId = summary.id)
+        }.let { times -> reservationTimeRepository.saveAll(times) }
+
+        return ReservationSummaryReadDTO.from(memberReadDTO, summary, roomReadDTO, times)
+    }
+
     @Transactional
     fun createReservationSummaryByAdmin(
         user: User,
@@ -165,5 +188,24 @@ class ReservationService(
         reservationTimeRepository.deleteAllBySummaryId(summary.id)
         reservationRepository.deleteAllBySummaryId(summary.id)
         reservationSummaryRepository.deleteById(summary.id)
+    }
+
+    @Transactional
+    fun permitReservationSummaryByAdmin(user: User, summaryId: String) {
+        val summary =
+            reservationSummaryRepository.findById(summaryId).orElseThrow { throw ReservationNotFoundException() }
+        val times = reservationTimeRepository.findAllBySummaryId(summary.id)
+        summary.approve()
+
+        val reservations = summary.createReservations(provider, times)
+        reservations.forEach { res ->
+            if (reservationRepository.existsReservationBetweenTimes(
+                    start = res.startTime,
+                    end = res.endTime,
+                    roomId = res.roomId
+                )
+            ) throw ReservationAlreadyExistException(res.startTime, res.endTime)
+        }
+        reservationRepository.saveAll(reservations)
     }
 }

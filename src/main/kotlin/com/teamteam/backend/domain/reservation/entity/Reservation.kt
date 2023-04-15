@@ -1,5 +1,6 @@
 package com.teamteam.backend.domain.reservation.entity
 
+import com.teamteam.backend.domain.generator.IdentifierProvider
 import com.teamteam.backend.domain.reservation.entity.ReservationStatus.*
 import com.teamteam.backend.shared.entity.BaseTimeEntity
 import jakarta.persistence.*
@@ -25,7 +26,7 @@ class ReservationSummary(
     @Column(name = "end_date")
     var endDate: LocalDate,
     @Column(name = "is_created_by_admin")
-    var isCreatedByAdmin : Boolean = false
+    var isCreatedByAdmin: Boolean = false
 ) : BaseTimeEntity() {
 
     fun approve() {
@@ -38,6 +39,33 @@ class ReservationSummary(
 
     fun cancel() {
         status = CANCELED
+    }
+
+    fun createReservations(provider: IdentifierProvider, times: List<ReservationTime>): MutableList<Reservation> {
+
+        val start = this.startDate
+        val end = this.endDate
+
+        val reservations = mutableListOf<Reservation>()
+
+        for (day in start.datesUntil(end.plusDays(1))) {
+            for (time in times) {
+                if (day.dayOfWeek != time.dayOfWeek) continue
+
+                val reservation = Reservation(
+                    id = provider.generate(),
+                    summaryId = this.id,
+                    activity = this.activity,
+                    userId = this.userId,
+                    roomId = this.roomId,
+                    startTime = LocalDateTime.of(day, time.startTime),
+                    endTime = LocalDateTime.of(day, time.endTime),
+                    dayOfWeek = day.dayOfWeek,
+                )
+                reservations.add(reservation)
+            }
+        }
+        return reservations
     }
 }
 
