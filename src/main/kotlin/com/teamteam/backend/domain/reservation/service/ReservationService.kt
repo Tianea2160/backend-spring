@@ -64,7 +64,7 @@ class ReservationService(
         val times = reservationTimeRepository.findAllBySummaryIdIn(summarys.map { it.id })
 
         return summarys.map { summary ->
-            val member = memberService.findById(summary.userId, summary.isCreatedByAdmin)
+            val member = MemberReadDTO.from(user)
             val room = roomService.findById(summary.roomId)
             ReservationSummaryReadDTO.from(member, summary, room, times.filter { time -> time.summaryId == summary.id })
         }
@@ -86,8 +86,6 @@ class ReservationService(
         dto: ReservationSummaryCreateDTO
     ): ReservationSummaryReadDTO {
         if (!roomService.isExist(roomId)) throw RoomNotFoundException()
-        if (!roomService.isValid(roomId, user.id)) throw BuildingNoPermissionException()
-
         val roomReadDTO = roomService.findById(roomId)
         val memberReadDTO = MemberReadDTO.from(user)
         val summary = dto.toEntity(id = provider.generate(), roomId = roomId, userId = user.id)

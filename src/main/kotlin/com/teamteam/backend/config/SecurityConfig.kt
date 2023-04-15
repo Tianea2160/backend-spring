@@ -29,7 +29,7 @@ class SecurityConfig(
 ) {
     // override default user details service auto configuration for removing default user and log message
     @Bean
-    fun userDetailsService() : UserDetailsService = UserDetailsService { username -> User("", username, "", "", "") }
+    fun userDetailsService(): UserDetailsService = UserDetailsService { username -> User("", username, "", "", "") }
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -56,13 +56,13 @@ class SecurityConfig(
             .requestMatchers(HttpMethod.PUT, "/api/room/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/api/room/**").hasRole("ADMIN")
 
+            .requestMatchers("/api/reservation/admin/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.GET, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
-            .requestMatchers(HttpMethod.POST, "/api/reservation/admin/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.POST, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
             .requestMatchers(HttpMethod.PUT, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
             .requestMatchers(HttpMethod.DELETE, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
 
-            .requestMatchers("/v3/api-docs/**", "/swagger/**", "/swagger-ui.html" , "/swagger-ui/**").permitAll()
+            .requestMatchers("/v3/api-docs/**", "/swagger/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
             .anyRequest().denyAll() // deny all request that we are not using
             .and()
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)

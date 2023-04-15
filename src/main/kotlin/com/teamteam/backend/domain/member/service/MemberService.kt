@@ -20,9 +20,9 @@ class MemberService(
             .map { member -> MemberReadDTO(id = member.id, username = member.username) }
             .orElseThrow { throw MemberNotFoundException() }
     } else {
-        userRepository.findById(userId)
-            .map { member -> MemberReadDTO(id = member.id, username = member.username) }
-            .orElseThrow { throw MemberNotFoundException() }
+        userRepository.findByPID(userId)
+            ?.let { member -> MemberReadDTO(id = member.id, username = member.username) }
+            ?: throw MemberNotFoundException()
     }
 
     @Transactional
