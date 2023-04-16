@@ -15,6 +15,7 @@ import com.teamteam.backend.domain.room.error.RoomCreateException
 import com.teamteam.backend.domain.room.error.RoomNotFoundException
 import com.teamteam.backend.domain.room.repository.RoomRepository
 import com.teamteam.backend.shared.security.User
+import jakarta.validation.constraints.AssertFalse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -91,4 +92,12 @@ class RoomService(
         roomRepository.deleteById(roomId)
         equipmentRepository.deleteAllByRoomId(roomId)
     }
+
+    fun isValid(roomId : String, userId : String): Boolean {
+        val room = roomRepository.findById(roomId).orElseThrow { throw RoomNotFoundException() }
+        val building = buildingRepository.findById(room.buildingId).orElseThrow { throw BuildingNotFoundException() }
+        return building.adminId == userId
+    }
+
+    fun isExist(roomId : String): Boolean = roomRepository.existsById(roomId)
 }

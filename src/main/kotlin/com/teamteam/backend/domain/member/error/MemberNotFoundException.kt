@@ -6,8 +6,8 @@ import com.teamteam.backend.shared.error.TeamTeamRuntimeException
 
 class MemberNotFoundException : TeamTeamRuntimeException(
     ErrorResponse(
-        code = "MEMBER_NOT_FOUND",
-        message = "Member not found",
+        code = "USER_NOT_FOUND",
+        message = "User not found",
         status = 404
     )
 )
