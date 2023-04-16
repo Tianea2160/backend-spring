@@ -14,7 +14,7 @@ class BuildingReadDTO(
 
     companion object {
         fun from(building: Building, user: User) = BuildingReadDTO(
-            id = building.id!!,
+            id = building.id,
             manager = ManagerReadDTO(id = user.id, username = user.username),
             name = building.name,
             location = building.location,

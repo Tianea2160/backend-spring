@@ -46,8 +46,7 @@ class BuildingService(
         // name is unique check
         if (buildingRepository.existsByName(dto.name))
             throw BuildingNameConflictException()
-        val building = dto.toEntity(user)
-        building.id = provider.generate() // id generate
+        val building = dto.toEntity(provider.generate(), user)
         return BuildingReadDTO.from(buildingRepository.save(building), user)
     }
 

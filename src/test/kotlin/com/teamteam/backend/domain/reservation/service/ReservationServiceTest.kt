@@ -1,6 +1,5 @@
 package com.teamteam.backend.domain.reservation.service
 
-import com.teamteam.backend.domain.building.dto.BuildingReadDTO
 import com.teamteam.backend.domain.building.dto.BuildingReadSimpleDTO
 import com.teamteam.backend.domain.generator.IdentifierProvider
 import com.teamteam.backend.domain.member.dto.MemberReadDTO
@@ -19,12 +18,10 @@ import com.teamteam.backend.domain.room.service.RoomService
 import com.teamteam.backend.shared.security.User
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.endWith
 import io.mockk.every
 import io.mockk.mockk
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
 class ReservationServiceTest : BehaviorSpec({

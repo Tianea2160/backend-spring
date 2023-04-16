@@ -7,7 +7,7 @@ import jakarta.persistence.Id
 @Entity(name = "building")
 class Building(
     @Id
-    var id: String? = null,
+    var id: String,
     @Column(name = "admin_id")
     var adminId : String,
     var name: String,

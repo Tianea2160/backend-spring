@@ -9,7 +9,7 @@ import jakarta.persistence.Table
 @Table(name = "room")
 class Room(
     @Id
-    var id: String? = null,
+    var id: String,
     @Column(name = "building_id")
     var buildingId: String,
     var name: String,

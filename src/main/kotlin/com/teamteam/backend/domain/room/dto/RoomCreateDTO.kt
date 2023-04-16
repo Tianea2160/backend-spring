@@ -9,7 +9,8 @@ class RoomCreateDTO(
     val description: String,
     val equipments: Set<EquipmentType>
 ) {
-    fun toEntity(buildingId: String): Room = Room(
+    fun toEntity(roomId:String, buildingId: String): Room = Room(
+        id = roomId,
         buildingId = buildingId,
         name = name,
         capacity = capacity,

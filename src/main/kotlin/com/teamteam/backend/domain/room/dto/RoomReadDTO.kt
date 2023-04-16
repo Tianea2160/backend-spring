@@ -5,7 +5,6 @@ import com.teamteam.backend.domain.building.entity.Building
 import com.teamteam.backend.domain.equipment.entity.Equipment
 import com.teamteam.backend.domain.equipment.entity.EquipmentType
 import com.teamteam.backend.domain.room.entity.Room
-import com.teamteam.backend.domain.room.error.RoomNotFoundException
 
 class RoomReadDTO(
     val id: String,
@@ -18,7 +17,7 @@ class RoomReadDTO(
     companion object {
         fun from(building: Building, room: Room, equipments: List<Equipment>): RoomReadDTO {
             return RoomReadDTO(
-                id = room.id ?: throw RoomNotFoundException(),
+                id = room.id,
                 building = BuildingReadSimpleDTO.from(building),
                 name = room.name,
                 capacity = room.capacity,
