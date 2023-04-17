@@ -9,8 +9,9 @@ class BuildingCreateDTO (
     val description: String,
     val imageUrl: String
 ){
-    fun toEntity(user:User): Building {
+    fun toEntity(buildingId : String, user:User): Building {
         return Building(
+            id = buildingId,
             name = this.name,
             adminId = user.id,
             location = this.location,

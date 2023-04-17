@@ -1,7 +1,6 @@
 package com.teamteam.backend.domain.building.dto
 
 import com.teamteam.backend.domain.building.entity.Building
-import com.teamteam.backend.domain.building.error.BuildingNotFoundException
 
 class BuildingReadSimpleDTO(
     val id: String,
@@ -10,7 +9,7 @@ class BuildingReadSimpleDTO(
 ) {
     companion object {
         fun from(building: Building) = BuildingReadSimpleDTO(
-            id = building.id ?: throw BuildingNotFoundException(),
+            id = building.id,
             name = building.name,
             description = building.description
         )

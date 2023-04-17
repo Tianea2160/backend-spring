@@ -6,7 +6,7 @@ import jakarta.persistence.*
 @Table(name = "equipment")
 class Equipment(
     @Id
-    var id : String? = null,
+    var id : String,
     @Enumerated(EnumType.STRING)
     var type : EquipmentType,
     @Column(name = "room_id")

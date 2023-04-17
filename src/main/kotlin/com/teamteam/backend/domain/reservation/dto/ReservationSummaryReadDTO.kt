@@ -5,7 +5,6 @@ import com.teamteam.backend.domain.member.dto.MemberReadDTO
 import com.teamteam.backend.domain.reservation.entity.ReservationStatus
 import com.teamteam.backend.domain.reservation.entity.ReservationSummary
 import com.teamteam.backend.domain.reservation.entity.ReservationTime
-import com.teamteam.backend.domain.reservation.error.ReservationNotFoundException
 import com.teamteam.backend.domain.room.dto.RoomReadDTO
 import java.time.DayOfWeek
 import java.time.LocalDate
