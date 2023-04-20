@@ -144,7 +144,7 @@ class BuildingServiceTest : StringSpec({
 
         // when
         val dto = withContext(Dispatchers.IO) {
-            buildingService.findAll(user)
+            buildingService.findAll()
         }
 
         // then

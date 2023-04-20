@@ -22,7 +22,7 @@ class BuildingService(
 ) {
     //*** read only logic ***//
     @Transactional(readOnly = true)
-    fun findAll(user: User): List<BuildingReadDTO> {
+    fun findAll(): List<BuildingReadDTO> {
         return buildingRepository.findAll().map { building ->
             val member = memberRepository.findByPID(building.adminId) ?: throw MemberNotFoundException()
             BuildingReadDTO.from(

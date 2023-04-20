@@ -18,11 +18,8 @@ class BuildingController(
 ) {
     //*** read only controller ***//
     @GetMapping("")
-    fun findAll(
-        authentication: Authentication
-    ): ResponseEntity<List<BuildingReadDTO>> {
-        val user: User = authentication.principal as User
-        return ResponseEntity.ok(buildingService.findAll(user))
+    fun findAll(): ResponseEntity<List<BuildingReadDTO>> {
+        return ResponseEntity.ok(buildingService.findAll())
     }
 
     @GetMapping("/details/{buildingId}")
