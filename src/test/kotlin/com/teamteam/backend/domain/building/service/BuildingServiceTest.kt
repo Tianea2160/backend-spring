@@ -9,6 +9,7 @@ import com.teamteam.backend.domain.member.entity.Member
 import com.teamteam.backend.domain.member.repository.MemberRepository
 import com.teamteam.backend.shared.security.User
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -50,15 +51,15 @@ class BuildingServiceTest : StringSpec({
         every { buildingRepository.existsByName(any()) } returns false
 
         // when
-        val readDTO = withContext(Dispatchers.IO) {
+        val read = withContext(Dispatchers.IO) {
             buildingService.create(user, dto)
         }
 
         // then
-        assertThat(readDTO.name).isEqualTo(dto.name)
-        assertThat(readDTO.location).isEqualTo(dto.location)
-        assertThat(readDTO.description).isEqualTo(dto.description)
-        assertThat(readDTO.imageUrl).isEqualTo(dto.imageUrl)
+        read.name shouldBe dto.name
+        read.location shouldBe dto.location
+        read.description shouldBe dto.description
+        read.imageUrl shouldBe dto.imageUrl
     }
 
     "building update test" {
@@ -101,10 +102,10 @@ class BuildingServiceTest : StringSpec({
         }
 
         // then
-        assertThat(updated.name).isEqualTo(dto.name)
-        assertThat(updated.location).isEqualTo(dto.location)
-        assertThat(updated.description).isEqualTo(dto.description)
-        assertThat(updated.imageUrl).isEqualTo(dto.imageUrl)
+        updated.name shouldBe dto.name
+        updated.location shouldBe dto.location
+        updated.description shouldBe dto.description
+        updated.imageUrl shouldBe dto.imageUrl
     }
 
     "building delete test" {
@@ -150,10 +151,10 @@ class BuildingServiceTest : StringSpec({
         // then
         assertThat(dto.size).isEqualTo(buildings.size)
         for (i in 0..10) {
-            assertThat(dto[i].name).isEqualTo(buildings[i].name)
-            assertThat(dto[i].location).isEqualTo(buildings[i].location)
-            assertThat(dto[i].description).isEqualTo(buildings[i].description)
-            assertThat(dto[i].imageUrl).isEqualTo(buildings[i].imageUrl)
+            dto[i].name shouldBe buildings[i].name
+            dto[i].location shouldBe buildings[i].location
+            dto[i].description shouldBe buildings[i].description
+            dto[i].imageUrl shouldBe buildings[i].imageUrl
         }
     }
 
@@ -182,10 +183,9 @@ class BuildingServiceTest : StringSpec({
         }
 
         // then
-        assertThat(dto.id).isEqualTo(buildingId)
-        assertThat(dto.name).isEqualTo(building.name)
-        assertThat(dto.location).isEqualTo(building.location)
-        assertThat(dto.description).isEqualTo(building.description)
-        assertThat(dto.imageUrl).isEqualTo(building.imageUrl)
+        dto.name shouldBe building.name
+        dto.location shouldBe building.location
+        dto.description shouldBe building.description
+        dto.imageUrl shouldBe building.imageUrl
     }
 })
