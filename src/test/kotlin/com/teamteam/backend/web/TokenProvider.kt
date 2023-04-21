@@ -4,9 +4,10 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.Cookie
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.stereotype.Service
 
-@Service
+@TestConfiguration
 class TokenProvider(
     @Value("\${jwt.secret}")
     private val secret: String,
