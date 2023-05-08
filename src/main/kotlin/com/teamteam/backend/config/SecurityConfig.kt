@@ -80,7 +80,8 @@ class SecurityConfig(
         val config = CorsConfiguration()
         config.allowedHeaders = listOf("*")
         config.allowedMethods = listOf("*")
-        config.allowedOrigins = listOf("*")
+        config.allowedOrigins = listOf("http://localhost:5173",  "https://cb1front.ccppoo.net")
+        config.allowCredentials = true
 
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", config)
