@@ -42,9 +42,9 @@ class ReservationServiceTest : BehaviorSpec({
 
     given("admin user") {
         val user = User(
-            id = "admin",
-            username = "관리자",
             password = "",
+            username = "관리자",
+            id = "admin",
             role = "ADMIN",
             building = ""
         )
