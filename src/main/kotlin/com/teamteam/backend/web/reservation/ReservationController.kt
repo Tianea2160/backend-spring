@@ -18,6 +18,9 @@ class ReservationController(
     private val reservationService: ReservationService
 ) {
     //*** read only logic ***//
+    @GetMapping("")
+    fun findReservations(): List<ReservationReadDTO> = reservationService.findRevervations()
+
     @GetMapping("/summary")
     fun findAll(): ResponseEntity<List<ReservationSummaryReadDTO>> = ResponseEntity.ok(reservationService.findAll())
 

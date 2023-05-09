@@ -20,6 +20,7 @@ import com.teamteam.backend.domain.room.error.RoomNotFoundException
 import com.teamteam.backend.domain.room.service.RoomService
 import com.teamteam.backend.shared.security.User
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -36,6 +37,16 @@ class ReservationService(
     private val logger = LoggerFactory.getLogger(ReservationService::class.java)
 
     //*** read only logic ***//
+    @Transactional(readOnly = true)
+    fun findRevervations(): List<ReservationReadDTO> {
+        return reservationRepository.findAll().map { reservation ->
+            val summary = reservationSummaryRepository.findByIdOrNull(reservation.summaryId)
+                ?: throw ReservationNotFoundException()
+            val member = memberService.findById(reservation.userId, summary.isCreatedByAdmin)
+            ReservationReadDTO.from(reservation, member)
+        }
+    }
+
     @Transactional(readOnly = true)
     fun findAll(): List<ReservationSummaryReadDTO> {
         val summarys = reservationSummaryRepository.findAll()
