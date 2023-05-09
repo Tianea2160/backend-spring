@@ -106,7 +106,8 @@ class ReservationService(
     ): ReservationSummaryReadDTO {
         val mockMember = memberService.createMockMember(dto.user.username)
         if (!roomService.isExist(roomId)) throw RoomNotFoundException()
-        if (!roomService.isValid(roomId, user.id)) throw BuildingNoPermissionException()
+        logger.info("user : $user, dto : $dto, roomId : $roomId")
+//        if (!roomService.isValid(roomId, user.id)) throw BuildingNoPermissionException()
 
         val summary = dto.toEntity(id = provider.generate(), roomId = roomId, userId = mockMember.id)
 
