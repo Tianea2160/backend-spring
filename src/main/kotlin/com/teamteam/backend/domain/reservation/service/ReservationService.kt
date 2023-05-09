@@ -1,6 +1,7 @@
 package com.teamteam.backend.domain.reservation.service
 
 import com.teamteam.backend.domain.building.error.BuildingNoPermissionException
+import com.teamteam.backend.domain.building.service.BuildingService
 import com.teamteam.backend.domain.generator.IdentifierProvider
 import com.teamteam.backend.domain.member.dto.MemberReadDTO
 import com.teamteam.backend.domain.member.service.MemberService
@@ -31,6 +32,7 @@ class ReservationService(
     private val reservationTimeRepository: ReservationTimeRepository,
     private val memberService: MemberService,
     private val roomService: RoomService,
+    private val buildingService: BuildingService,
     private val provider: IdentifierProvider,
     private val reservationRepository: ReservationRepository
 ) {
@@ -43,7 +45,9 @@ class ReservationService(
             val summary = reservationSummaryRepository.findByIdOrNull(reservation.summaryId)
                 ?: throw ReservationNotFoundException()
             val member = memberService.findById(reservation.userId, summary.isCreatedByAdmin)
-            ReservationReadDTO.from(reservation, member)
+            val room = roomService.findById(summary.roomId)
+            val building = buildingService.findById(room.building.id)
+            ReservationReadDTO.from(reservation, member, room = room.name, building = building.name)
         }
     }
 
@@ -85,7 +89,19 @@ class ReservationService(
     fun findMyReservations(user: User): List<ReservationReadDTO> {
         val reservations = reservationRepository.findAllByUserId(user.id)
         val member = MemberReadDTO.from(user)
-        return reservations.map { reservation -> ReservationReadDTO.from(reservation, member) }
+
+        return reservations.map { reservation ->
+            val summary = reservationSummaryRepository.findByIdOrNull(reservation.summaryId)
+                ?: throw ReservationNotFoundException()
+            val room = roomService.findById(summary.roomId)
+            val building = buildingService.findById(room.building.id)
+            ReservationReadDTO.from(
+                reservation,
+                member,
+                room = room.name,
+                building = building.name
+            )
+        }
     }
 
     //*** command logic ***//

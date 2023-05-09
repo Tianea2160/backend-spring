@@ -1,6 +1,9 @@
 package com.teamteam.backend.domain.reservation.service
 
+import com.teamteam.backend.domain.building.dto.BuildingReadDTO
 import com.teamteam.backend.domain.building.dto.BuildingReadSimpleDTO
+import com.teamteam.backend.domain.building.dto.ManagerReadDTO
+import com.teamteam.backend.domain.building.service.BuildingService
 import com.teamteam.backend.domain.generator.IdentifierProvider
 import com.teamteam.backend.domain.member.dto.MemberReadDTO
 import com.teamteam.backend.domain.member.dto.MockMemberCreateDTO
@@ -36,13 +39,15 @@ class ReservationServiceTest : BehaviorSpec({
     val reservationRepository = mockk<ReservationRepository>()
     val roomService = mockk<RoomService>()
     val memberService = mockk<MemberService>()
+    val buildingService = mockk<BuildingService>()
     val reservationService = ReservationService(
         provider = provider,
         reservationSummaryRepository = reservationSummaryRepository,
         reservationTimeRepository = reservationTimeRepository,
         reservationRepository = reservationRepository,
         roomService = roomService,
-        memberService = memberService
+        memberService = memberService,
+        buildingService = buildingService
     )
 
     given("admin user") {
@@ -397,7 +402,17 @@ class ReservationServiceTest : BehaviorSpec({
                     description = "test mock description",
                 )
             )
-
+            every { buildingService.findById(any()) } returns BuildingReadDTO(
+                id = "test mock id",
+                name = "test mock name",
+                description = "test mock description",
+                location = "test mock location",
+                imageUrl = "test mock image url",
+                manager = ManagerReadDTO(
+                    id = "test mock id",
+                    username = "test mock username",
+                )
+            )
             val reads = reservationService.findMyReservations(user = user)
 
             then("나의 예약 상세가 조회되어야한다.") {
