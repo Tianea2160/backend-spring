@@ -8,29 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
-//@Component
-//class JwtFilter(
-//    private val jwtService: JwtService
-//) : OncePerRequestFilter() {
-//    override fun doFilterInternal(
-//        request: HttpServletRequest,
-//        response: HttpServletResponse,
-//        filterChain: FilterChain
-//    ) {
-//        val bearer:String? = request.getHeader("Authorization")
-//        if(bearer == null){
-//            logger.info("bearer is null")
-//            filterChain.doFilter(request, response)
-//            return
-//        }
-//        val jwt:String = bearer.substring("Bearer ".length)
-//        val authentication = jwtService.createAuthenticationToken(jwt)
-//        SecurityContextHolder.getContext().authentication = authentication
-//        filterChain.doFilter(request, response)
-//    }
-//}
-
-
 @Component
 class JwtFilter(
     private val jwtService: JwtService
@@ -40,15 +17,38 @@ class JwtFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val cookie : Cookie? = request.cookies?.find { it.name == "cat" }
-        if(cookie == null){
-            logger.info("cat cookie is null")
+        val bearer:String? = request.getHeader("Authorization")
+        if(bearer == null){
+            logger.info("bearer is null")
             filterChain.doFilter(request, response)
             return
         }
-        val jwt = cookie.value
+        val jwt:String = bearer.substring("Bearer ".length)
         val authentication = jwtService.createAuthenticationToken(jwt)
         SecurityContextHolder.getContext().authentication = authentication
         filterChain.doFilter(request, response)
     }
 }
+
+
+//@Component
+//class JwtFilter(
+//    private val jwtService: JwtService
+//) : OncePerRequestFilter() {
+//    override fun doFilterInternal(
+//        request: HttpServletRequest,
+//        response: HttpServletResponse,
+//        filterChain: FilterChain
+//    ) {
+//        val cookie : Cookie? = request.cookies?.find { it.name == "cat" }
+//        if(cookie == null){
+//            logger.info("cat cookie is null")
+//            filterChain.doFilter(request, response)
+//            return
+//        }
+//        val jwt = cookie.value
+//        val authentication = jwtService.createAuthenticationToken(jwt)
+//        SecurityContextHolder.getContext().authentication = authentication
+//        filterChain.doFilter(request, response)
+//    }
+//}
