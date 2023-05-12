@@ -58,7 +58,7 @@ class SecurityConfig(
 
             .requestMatchers("/api/reservation/admin/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.GET, "/api/reservation/me", "/api/reservation/summary/me").hasRole("STUDENT")
-            .requestMatchers(HttpMethod.GET, "/api/reservation/**").hasAnyRole("ADMIN", "STUDENT")
+            .requestMatchers(HttpMethod.GET, "/api/reservation/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/reservation/**").hasRole("STUDENT")
             .requestMatchers(HttpMethod.DELETE, "/api/reservation/**").hasRole("STUDENT")
 

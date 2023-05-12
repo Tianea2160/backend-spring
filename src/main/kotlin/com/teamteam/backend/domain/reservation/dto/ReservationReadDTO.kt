@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 
 class ReservationReadDTO(
     val reservationId: String,
+    val summaryId : String,
     val user: MemberReadDTO,
     val building: String,
     val room: String,
@@ -22,7 +23,8 @@ class ReservationReadDTO(
             startTime = reservation.startTime,
             endTime = reservation.endTime,
             building = building,
-            room = room
+            room = room,
+            summaryId = reservation.summaryId
         )
     }
 }
