@@ -1,6 +1,5 @@
 package com.teamteam.backend.domain.reservation.service
 
-import com.teamteam.backend.domain.building.error.BuildingNoPermissionException
 import com.teamteam.backend.domain.building.service.BuildingService
 import com.teamteam.backend.domain.generator.IdentifierProvider
 import com.teamteam.backend.domain.member.dto.MemberReadDTO
@@ -40,7 +39,23 @@ class ReservationService(
 
     //*** read only logic ***//
     @Transactional(readOnly = true)
-    fun findRevervations(): List<ReservationReadDTO> {
+    fun findReservationById(reservationId: String): ReservationReadDTO {
+        val reservation = reservationRepository.findByIdOrNull(reservationId) ?: throw ReservationNotFoundException()
+        val summary =
+            reservationSummaryRepository.findByIdOrNull(reservation.summaryId) ?: throw ReservationNotFoundException()
+        val member = memberService.findById(reservation.userId, summary.isCreatedByAdmin)
+        val room = roomService.findById(reservation.roomId)
+        val building = buildingService.findById(room.building.id)
+        return ReservationReadDTO.from(
+            reservation = reservation,
+            member = member,
+            room = room.name,
+            building = building.name
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun findReservations(): List<ReservationReadDTO> {
         return reservationRepository.findAll().map { reservation ->
             val summary = reservationSummaryRepository.findByIdOrNull(reservation.summaryId)
                 ?: throw ReservationNotFoundException()
